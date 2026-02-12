@@ -66,16 +66,21 @@ export function DecryptDialog({ sealedSecret, secretKey, onClose }: DecryptDialo
   // Check if secret exists
   if (!secret) {
     return (
-      <Dialog open onClose={onClose}>
-        <DialogTitle>Secret Not Found</DialogTitle>
+      <Dialog
+        open
+        onClose={onClose}
+        aria-labelledby="decrypt-error-title"
+        aria-describedby="decrypt-error-description"
+      >
+        <DialogTitle id="decrypt-error-title">Secret Not Found</DialogTitle>
         <DialogContent>
-          <Typography>
+          <Typography id="decrypt-error-description">
             The Kubernetes Secret for this SealedSecret has not been created yet, or you don't have
             permission to read it.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose} aria-label="Close dialog">Close</Button>
         </DialogActions>
       </Dialog>
     );
@@ -85,15 +90,20 @@ export function DecryptDialog({ sealedSecret, secretKey, onClose }: DecryptDialo
   const encodedValue = secret.data?.[secretKey];
   if (!encodedValue) {
     return (
-      <Dialog open onClose={onClose}>
-        <DialogTitle>Key Not Found</DialogTitle>
+      <Dialog
+        open
+        onClose={onClose}
+        aria-labelledby="decrypt-key-error-title"
+        aria-describedby="decrypt-key-error-description"
+      >
+        <DialogTitle id="decrypt-key-error-title">Key Not Found</DialogTitle>
         <DialogContent>
-          <Typography>
+          <Typography id="decrypt-key-error-description">
             The key <strong>{secretKey}</strong> was not found in the Secret.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose} aria-label="Close dialog">Close</Button>
         </DialogActions>
       </Dialog>
     );
@@ -102,15 +112,28 @@ export function DecryptDialog({ sealedSecret, secretKey, onClose }: DecryptDialo
   const decodedValue = atob(encodedValue);
 
   return (
-    <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
+    <Dialog
+      open
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      aria-labelledby="decrypt-dialog-title"
+      aria-describedby="decrypt-dialog-description"
+    >
+      <DialogTitle id="decrypt-dialog-title">
         Decrypted Value: {secretKey}
-        <Typography variant="caption" display="block" color="text.secondary">
+        <Typography
+          variant="caption"
+          display="block"
+          color="text.secondary"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           Auto-closing in {countdown} seconds
         </Typography>
       </DialogTitle>
       <DialogContent>
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{ mt: 2 }} id="decrypt-dialog-description">
           <TextField
             fullWidth
             multiline
@@ -118,21 +141,39 @@ export function DecryptDialog({ sealedSecret, secretKey, onClose }: DecryptDialo
             maxRows={10}
             value={decodedValue}
             type={showValue ? 'text' : 'password'}
+            inputProps={{
+              'aria-label': `Decrypted value for ${secretKey}`,
+              readOnly: true,
+            }}
             InputProps={{
               readOnly: true,
               endAdornment: (
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <IconButton onClick={() => setShowValue(!showValue)} size="small">
+                  <IconButton
+                    onClick={() => setShowValue(!showValue)}
+                    size="small"
+                    aria-label={showValue ? 'Hide secret value' : 'Show secret value'}
+                    title={showValue ? 'Hide secret value' : 'Show secret value'}
+                  >
                     {showValue ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
-                  <IconButton onClick={handleCopy} size="small">
+                  <IconButton
+                    onClick={handleCopy}
+                    size="small"
+                    aria-label="Copy value to clipboard"
+                    title="Copy value to clipboard"
+                  >
                     <CopyIcon />
                   </IconButton>
                 </Box>
               ),
             }}
           />
-          <Box sx={{ mt: 2, p: 2, bgcolor: 'warning.light', borderRadius: 1 }}>
+          <Box
+            sx={{ mt: 2, p: 2, bgcolor: 'warning.light', borderRadius: 1 }}
+            role="alert"
+            aria-live="polite"
+          >
             <Typography variant="body2">
               <strong>Security Warning:</strong> This value is sensitive. Ensure no one is looking
               over your shoulder.
@@ -141,7 +182,7 @@ export function DecryptDialog({ sealedSecret, secretKey, onClose }: DecryptDialo
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose} aria-label="Close dialog">Close</Button>
       </DialogActions>
     </Dialog>
   );

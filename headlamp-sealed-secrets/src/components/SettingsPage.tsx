@@ -39,7 +39,7 @@ export function SettingsPage() {
       title="Sealed Secrets Plugin Settings"
     >
       <Box p={3}>
-        <Typography variant="body1" paragraph>
+        <Typography variant="body1" paragraph id="settings-description">
           Configure the connection to your Sealed Secrets controller. These settings are stored in
           your browser's local storage.
         </Typography>
@@ -48,62 +48,111 @@ export function SettingsPage() {
         <VersionWarning autoDetect showDetails />
 
         {/* Controller Health Status */}
-        <Box mb={3} p={2} bgcolor="background.paper" borderRadius={1} border={1} borderColor="divider">
-          <Typography variant="subtitle2" gutterBottom>
+        <Box
+          mb={3}
+          p={2}
+          bgcolor="background.paper"
+          borderRadius={1}
+          border={1}
+          borderColor="divider"
+          role="status"
+          aria-live="polite"
+        >
+          <Typography variant="subtitle2" gutterBottom id="controller-status-label">
             Controller Status
           </Typography>
           <ControllerStatus autoRefresh showDetails />
         </Box>
 
-        <Divider sx={{ mb: 3 }} />
+        <Divider sx={{ mb: 3 }} role="separator" />
 
-        <TextField
-          fullWidth
-          label="Controller Name"
-          value={config.controllerName}
-          onChange={e => setConfig({ ...config, controllerName: e.target.value })}
-          margin="normal"
-          helperText="Name of the sealed-secrets-controller deployment/service"
-        />
+        <form aria-labelledby="settings-form-title">
+          <Typography variant="h6" id="settings-form-title" sx={{ mb: 2 }} className="sr-only">
+            Controller Configuration
+          </Typography>
 
-        <TextField
-          fullWidth
-          label="Controller Namespace"
-          value={config.controllerNamespace}
-          onChange={e => setConfig({ ...config, controllerNamespace: e.target.value })}
-          margin="normal"
-          helperText="Namespace where the controller is installed"
-        />
+          <TextField
+            fullWidth
+            label="Controller Name"
+            value={config.controllerName}
+            onChange={e => setConfig({ ...config, controllerName: e.target.value })}
+            margin="normal"
+            helperText="Name of the sealed-secrets-controller deployment/service"
+            inputProps={{
+              'aria-label': 'Controller name',
+              'aria-describedby': 'controller-name-help',
+            }}
+            FormHelperTextProps={{
+              id: 'controller-name-help',
+            }}
+          />
 
-        <TextField
-          fullWidth
-          label="Controller Port"
-          type="number"
-          value={config.controllerPort}
-          onChange={e => setConfig({ ...config, controllerPort: parseInt(e.target.value, 10) })}
-          margin="normal"
-          helperText="HTTP port of the controller service"
-        />
+          <TextField
+            fullWidth
+            label="Controller Namespace"
+            value={config.controllerNamespace}
+            onChange={e => setConfig({ ...config, controllerNamespace: e.target.value })}
+            margin="normal"
+            helperText="Namespace where the controller is installed"
+            inputProps={{
+              'aria-label': 'Controller namespace',
+              'aria-describedby': 'controller-namespace-help',
+            }}
+            FormHelperTextProps={{
+              id: 'controller-namespace-help',
+            }}
+          />
 
-        <Box mt={3} display="flex" gap={2}>
-          <Button variant="contained" onClick={handleSave}>
-            Save Settings
-          </Button>
-          <Button variant="outlined" onClick={handleReset}>
-            Reset to Defaults
-          </Button>
-        </Box>
+          <TextField
+            fullWidth
+            label="Controller Port"
+            type="number"
+            value={config.controllerPort}
+            onChange={e => setConfig({ ...config, controllerPort: parseInt(e.target.value, 10) })}
+            margin="normal"
+            helperText="HTTP port of the controller service"
+            inputProps={{
+              'aria-label': 'Controller port',
+              'aria-describedby': 'controller-port-help',
+              min: 1,
+              max: 65535,
+            }}
+            FormHelperTextProps={{
+              id: 'controller-port-help',
+            }}
+          />
 
-        <Box mt={4} p={2} bgcolor="info.light" borderRadius={1}>
+          <Box mt={3} display="flex" gap={2} role="group" aria-label="Settings actions">
+            <Button
+              variant="contained"
+              onClick={handleSave}
+              aria-label="Save configuration settings"
+            >
+              Save Settings
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={handleReset}
+              aria-label="Reset settings to default values"
+            >
+              Reset to Defaults
+            </Button>
+          </Box>
+        </form>
+
+        <Box mt={4} p={2} bgcolor="info.light" borderRadius={1} role="note">
           <Typography variant="h6" gutterBottom>
             Default Values
           </Typography>
-          <Typography variant="body2">
-            <strong>Controller Name:</strong> sealed-secrets-controller
+          <Typography variant="body2" component="dl">
+            <dt style={{ display: 'inline', fontWeight: 'bold' }}>Controller Name:</dt>{' '}
+            <dd style={{ display: 'inline', margin: 0 }}>sealed-secrets-controller</dd>
             <br />
-            <strong>Controller Namespace:</strong> kube-system
+            <dt style={{ display: 'inline', fontWeight: 'bold' }}>Controller Namespace:</dt>{' '}
+            <dd style={{ display: 'inline', margin: 0 }}>kube-system</dd>
             <br />
-            <strong>Controller Port:</strong> 8080
+            <dt style={{ display: 'inline', fontWeight: 'bold' }}>Controller Port:</dt>{' '}
+            <dd style={{ display: 'inline', margin: 0 }}>8080</dd>
           </Typography>
         </Box>
       </Box>

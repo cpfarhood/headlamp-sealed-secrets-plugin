@@ -119,10 +119,17 @@ export function EncryptDialog({ open, onClose }: EncryptDialogProps) {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Create Sealed Secret</DialogTitle>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      aria-labelledby="encrypt-dialog-title"
+      aria-describedby="encrypt-dialog-description"
+    >
+      <DialogTitle id="encrypt-dialog-title">Create Sealed Secret</DialogTitle>
       <DialogContent>
-        <Box sx={{ pt: 2 }}>
+        <Box sx={{ pt: 2 }} id="encrypt-dialog-description">
           <TextField
             fullWidth
             label="Secret Name"
@@ -130,14 +137,24 @@ export function EncryptDialog({ open, onClose }: EncryptDialogProps) {
             onChange={e => setName(e.target.value)}
             margin="normal"
             required
+            inputProps={{
+              'aria-label': 'Secret name',
+              'aria-required': true,
+            }}
+            helperText="Must be a valid Kubernetes resource name (lowercase alphanumeric, hyphens)"
           />
 
           <FormControl fullWidth margin="normal" required>
-            <InputLabel>Namespace</InputLabel>
+            <InputLabel id="encrypt-namespace-label">Namespace</InputLabel>
             <Select
               value={namespace}
               label="Namespace"
               onChange={e => setNamespace(e.target.value)}
+              labelId="encrypt-namespace-label"
+              inputProps={{
+                'aria-label': 'Namespace for the SealedSecret',
+                'aria-required': true,
+              }}
             >
               {namespaces?.map(ns => (
                 <MenuItem key={ns.metadata.name} value={ns.metadata.name}>
@@ -148,8 +165,17 @@ export function EncryptDialog({ open, onClose }: EncryptDialogProps) {
           </FormControl>
 
           <FormControl fullWidth margin="normal" required>
-            <InputLabel>Scope</InputLabel>
-            <Select value={scope} label="Scope" onChange={e => setScope(e.target.value as SealedSecretScope)}>
+            <InputLabel id="encrypt-scope-label">Scope</InputLabel>
+            <Select
+              value={scope}
+              label="Scope"
+              onChange={e => setScope(e.target.value as SealedSecretScope)}
+              labelId="encrypt-scope-label"
+              inputProps={{
+                'aria-label': 'Encryption scope for the SealedSecret',
+                'aria-required': true,
+              }}
+            >
               <MenuItem value="strict">Strict (name + namespace bound)</MenuItem>
               <MenuItem value="namespace-wide">Namespace-wide (namespace bound)</MenuItem>
               <MenuItem value="cluster-wide">Cluster-wide (no binding)</MenuItem>
@@ -161,12 +187,21 @@ export function EncryptDialog({ open, onClose }: EncryptDialogProps) {
           </Typography>
 
           {keyValues.map((kv, index) => (
-            <Box key={index} sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'flex-start' }}>
+            <Box
+              key={index}
+              sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'flex-start' }}
+              role="group"
+              aria-label={`Secret key-value pair ${index + 1}`}
+            >
               <TextField
                 label="Key Name"
                 value={kv.key}
                 onChange={e => handleKeyChange(index, e.target.value)}
                 sx={{ flex: 1 }}
+                inputProps={{
+                  'aria-label': `Key name ${index + 1}`,
+                }}
+                helperText={index === 0 ? 'Alphanumeric, hyphens, underscores, or dots' : undefined}
               />
               <TextField
                 label="Secret Value"
@@ -174,9 +209,19 @@ export function EncryptDialog({ open, onClose }: EncryptDialogProps) {
                 value={kv.value}
                 onChange={e => handleValueChange(index, e.target.value)}
                 sx={{ flex: 2 }}
+                autoComplete="off"
+                spellCheck={false}
+                inputProps={{
+                  'aria-label': `Secret value for ${kv.key || `key ${index + 1}`}`,
+                }}
                 InputProps={{
                   endAdornment: (
-                    <IconButton onClick={() => toggleShowValue(index)} edge="end">
+                    <IconButton
+                      onClick={() => toggleShowValue(index)}
+                      edge="end"
+                      aria-label={kv.showValue ? 'Hide password' : 'Show password'}
+                      tabIndex={0}
+                    >
                       {kv.showValue ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   ),
@@ -186,17 +231,27 @@ export function EncryptDialog({ open, onClose }: EncryptDialogProps) {
                 onClick={() => handleRemoveKeyValue(index)}
                 disabled={keyValues.length === 1}
                 color="error"
+                aria-label={`Remove key-value pair ${index + 1}`}
+                title={keyValues.length === 1 ? 'At least one key-value pair is required' : `Remove key-value pair ${index + 1}`}
               >
                 <DeleteIcon />
               </IconButton>
             </Box>
           ))}
 
-          <Button startIcon={<AddIcon />} onClick={handleAddKeyValue}>
+          <Button
+            startIcon={<AddIcon />}
+            onClick={handleAddKeyValue}
+            aria-label="Add another key-value pair"
+          >
             Add Another Key
           </Button>
 
-          <Box sx={{ mt: 2, p: 2, bgcolor: 'info.light', borderRadius: 1 }}>
+          <Box
+            sx={{ mt: 2, p: 2, bgcolor: 'info.light', borderRadius: 1 }}
+            role="note"
+            aria-live="polite"
+          >
             <Typography variant="body2">
               <strong>Security Note:</strong> Secret values are encrypted entirely in your browser
               using the controller's public key. The plaintext values never leave your machine.
@@ -205,10 +260,16 @@ export function EncryptDialog({ open, onClose }: EncryptDialogProps) {
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={encrypting}>
+        <Button onClick={onClose} disabled={encrypting} aria-label="Cancel creation">
           Cancel
         </Button>
-        <Button onClick={handleCreate} variant="contained" disabled={encrypting}>
+        <Button
+          onClick={handleCreate}
+          variant="contained"
+          disabled={encrypting}
+          aria-busy={encrypting}
+          aria-label={encrypting ? 'Encrypting and creating SealedSecret' : 'Create SealedSecret'}
+        >
           {encrypting ? 'Encrypting & Creating...' : 'Create'}
         </Button>
       </DialogActions>
