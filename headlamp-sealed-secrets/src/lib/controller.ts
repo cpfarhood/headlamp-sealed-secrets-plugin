@@ -5,8 +5,24 @@
  * via the Kubernetes API proxy.
  */
 
-import { AsyncResult, Err, PEMCertificate, PluginConfig, tryCatchAsync } from '../types';
+import { AsyncResult, Err, Ok, PEMCertificate, PluginConfig, tryCatchAsync } from '../types';
 import { retryWithBackoff } from './retry';
+
+/**
+ * Controller health status information
+ */
+export interface ControllerHealthStatus {
+  /** Whether the controller is healthy and responding */
+  healthy: boolean;
+  /** Whether the controller is reachable */
+  reachable: boolean;
+  /** Controller version if available */
+  version?: string;
+  /** Response latency in milliseconds */
+  latencyMs?: number;
+  /** Error message if not healthy */
+  error?: string;
+}
 
 /**
  * Build the controller proxy URL
@@ -155,4 +171,69 @@ export function getPluginConfig(): PluginConfig {
  */
 export function savePluginConfig(config: PluginConfig): void {
   localStorage.setItem('sealed-secrets-plugin-config', JSON.stringify(config));
+}
+
+/**
+ * Check controller health and reachability
+ *
+ * Attempts to reach the controller's health endpoint (/healthz) with a 5-second timeout.
+ * Returns health status including latency and version information if available.
+ *
+ * @param config Plugin configuration
+ * @returns Result containing health status (never fails - returns status even if unreachable)
+ */
+export async function checkControllerHealth(
+  config: PluginConfig
+): AsyncResult<ControllerHealthStatus, string> {
+  const startTime = Date.now();
+
+  try {
+    const url = getControllerProxyURL(config, '/healthz');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
+    const response = await fetch(url, {
+      method: 'GET',
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    const latencyMs = Date.now() - startTime;
+
+    if (!response.ok) {
+      return Ok({
+        healthy: false,
+        reachable: true,
+        latencyMs,
+        error: `HTTP ${response.status}: ${response.statusText}`,
+      });
+    }
+
+    // Try to get version from headers
+    const version = response.headers.get('X-Controller-Version') || undefined;
+
+    return Ok({
+      healthy: true,
+      reachable: true,
+      version,
+      latencyMs,
+    });
+  } catch (error: any) {
+    const latencyMs = Date.now() - startTime;
+
+    // Determine error type
+    let errorMessage = 'Controller unreachable';
+    if (error.name === 'AbortError') {
+      errorMessage = 'Request timed out after 5 seconds';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    return Ok({
+      healthy: false,
+      reachable: false,
+      latencyMs,
+      error: errorMessage,
+    });
+  }
 }

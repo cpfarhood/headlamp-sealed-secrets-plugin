@@ -5,11 +5,12 @@
  */
 
 import { SectionBox } from '@kinvolk/headlamp-plugin/lib/CommonComponents';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { Box, Button, Divider, TextField, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React from 'react';
 import { getPluginConfig, savePluginConfig } from '../lib/controller';
 import { PluginConfig } from '../types';
+import { ControllerStatus } from './ControllerStatus';
 
 /**
  * Settings page component
@@ -41,6 +42,16 @@ export function SettingsPage() {
           Configure the connection to your Sealed Secrets controller. These settings are stored in
           your browser's local storage.
         </Typography>
+
+        {/* Controller Health Status */}
+        <Box mb={3} p={2} bgcolor="background.paper" borderRadius={1} border={1} borderColor="divider">
+          <Typography variant="subtitle2" gutterBottom>
+            Controller Status
+          </Typography>
+          <ControllerStatus autoRefresh showDetails />
+        </Box>
+
+        <Divider sx={{ mb: 3 }} />
 
         <TextField
           fullWidth

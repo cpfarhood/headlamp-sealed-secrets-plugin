@@ -12,6 +12,7 @@ import React from 'react';
 import { fetchPublicCertificate, getPluginConfig } from '../lib/controller';
 import { isCertificateExpiringSoon, parseCertificateInfo } from '../lib/crypto';
 import { CertificateInfo, PEMCertificate } from '../types';
+import { ControllerStatus } from './ControllerStatus';
 
 interface SealingKey {
   name: string;
@@ -96,6 +97,7 @@ export function SealingKeysView() {
       title="Sealing Keys"
       headerProps={{
         actions: [
+          <ControllerStatus key="status" autoRefresh refreshIntervalMs={60000} showDetails />,
           <Button key="download" variant="contained" onClick={handleDownloadCert}>
             Download Public Certificate
           </Button>,
