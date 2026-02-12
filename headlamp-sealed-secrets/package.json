@@ -16,7 +16,7 @@
     "url": "https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/issues"
   },
   "homepage": "https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin#readme",
-  "author": "cpfarhood",
+  "author": "privilegedescalation",
   "license": "Apache-2.0",
   "scripts": {
     "start": "headlamp-plugin start",

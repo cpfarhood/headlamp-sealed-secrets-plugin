@@ -30,12 +30,12 @@ links:
   - name: Headlamp
     url: https://headlamp.dev
 maintainers:
-  - name: cpfarhood
-    email: cpfarhood@users.noreply.github.com
+  - name: privilegedescalation
+    email: privilegedescalation@users.noreply.github.com
 recommendations:
   - url: https://artifacthub.io/packages/helm/sealed-secrets/sealed-secrets
 provider:
-  name: cpfarhood
+  name: privilegedescalation
 changes:
   - kind: fixed
     description: "Replace @mui/icons-material with @iconify/react to fix icon loading errors"
