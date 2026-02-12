@@ -54,7 +54,13 @@ jobs:
       - name: Move tarball to root
         working-directory: ./headlamp-sealed-secrets
         run: |
-          TARBALL=$(ls *.tar.gz)
+          # Get the specific tarball created by package command
+          TARBALL="headlamp-sealed-secrets-${{ steps.extract_version.outputs.version }}.tar.gz"
+          if [ ! -f "${TARBALL}" ]; then
+            echo "::error::Expected tarball ${TARBALL} not found"
+            ls -la *.tar.gz
+            exit 1
+          fi
           mv "${TARBALL}" "../${TARBALL}"
           echo "Moved tarball: ${TARBALL}"
 
