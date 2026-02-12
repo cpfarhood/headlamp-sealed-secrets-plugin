@@ -165,28 +165,19 @@ echo -n "$DB_PASSWORD" | kubeseal \
 
 ## 🔒 Security
 
-### Zero Trust Architecture
 
-```
-┌─────────────────────────────────────────────┐
-│           User's Browser                     │
-│                                              │
-│  1. User enters plaintext: "mysecret"       │
-│  2. Plugin encrypts locally (RSA-OAEP)      │
-│  3. Sends ONLY encrypted data              │
-│                                              │
-│  ✅ Plaintext NEVER on network             │
-└─────────────────────────────────────────────┘
-         │
-         │ Only encrypted data
-         ▼
-┌─────────────────────────────────────────────┐
-│       Kubernetes Cluster                     │
-│                                              │
-│  4. Controller decrypts server-side         │
-│  5. Creates plain Secret in cluster         │
-└─────────────────────────────────────────────┘
-```
+### How It Works
+
+The plugin encrypts secrets client-side before sending them to Kubernetes:
+
+1. User enters plaintext values in the browser
+2. Plugin fetches controller's public certificate
+3. Values are encrypted using RSA-OAEP + AES-256-GCM
+4. Only encrypted data is sent to Kubernetes
+5. Controller decrypts and creates the Secret
+
+Plaintext values never leave your browser.
+
 
 ### Security Features
 
