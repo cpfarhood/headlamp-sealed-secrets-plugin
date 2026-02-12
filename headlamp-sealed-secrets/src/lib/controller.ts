@@ -5,7 +5,7 @@
  * via the Kubernetes API proxy.
  */
 
-import { AsyncResult, Err, PluginConfig, tryCatchAsync } from '../types';
+import { AsyncResult, Err, PEMCertificate, PluginConfig, tryCatchAsync } from '../types';
 
 /**
  * Build the controller proxy URL
@@ -19,11 +19,11 @@ export function getControllerProxyURL(config: PluginConfig, path: string): strin
  * Fetch the controller's public certificate
  *
  * @param config Plugin configuration
- * @returns Result containing PEM-encoded certificate or error message
+ * @returns Result containing PEM-encoded certificate (branded type) or error message
  */
 export async function fetchPublicCertificate(
   config: PluginConfig
-): AsyncResult<string, string> {
+): AsyncResult<PEMCertificate, string> {
   const url = getControllerProxyURL(config, '/v1/cert.pem');
 
   const result = await tryCatchAsync(async () => {
@@ -31,7 +31,7 @@ export async function fetchPublicCertificate(
     if (!response.ok) {
       throw new Error(`Failed to fetch certificate: ${response.status} ${response.statusText}`);
     }
-    return await response.text();
+    return PEMCertificate(await response.text());
   });
 
   if (result.ok === false) {

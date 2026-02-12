@@ -11,6 +11,7 @@ import forge from 'node-forge';
 import { useSnackbar } from 'notistack';
 import React from 'react';
 import { fetchPublicCertificate, getPluginConfig } from '../lib/controller';
+import { PEMCertificate } from '../types';
 
 interface SealingKey {
   name: string;
@@ -23,7 +24,7 @@ interface SealingKey {
 /**
  * Parse certificate dates from TLS secret
  */
-function parseCertificateDates(certPem: string): { notBefore?: string; notAfter?: string } {
+function parseCertificateDates(certPem: PEMCertificate): { notBefore?: string; notAfter?: string } {
   try {
     const cert = forge.pki.certificateFromPem(certPem);
     return {
@@ -57,7 +58,7 @@ export function SealingKeysView() {
           | 'active'
           | 'compromised';
         const certPem = secret.data?.['tls.crt'] ? atob(secret.data['tls.crt']) : '';
-        const dates = certPem ? parseCertificateDates(certPem) : {};
+        const dates = certPem ? parseCertificateDates(PEMCertificate(certPem)) : {};
 
         return {
           name: secret.metadata.name!,

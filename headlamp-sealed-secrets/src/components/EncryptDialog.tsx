@@ -27,7 +27,7 @@ import React from 'react';
 import { fetchPublicCertificate, getPluginConfig } from '../lib/controller';
 import { encryptKeyValues, parsePublicKeyFromCert } from '../lib/crypto';
 import { SealedSecret } from '../lib/SealedSecretCRD';
-import { SealedSecretScope,SecretKeyValue } from '../types';
+import { PlaintextValue, SealedSecretScope, SecretKeyValue } from '../types';
 
 interface EncryptDialogProps {
   open: boolean;
@@ -111,7 +111,7 @@ export function EncryptDialog({ open, onClose }: EncryptDialogProps) {
       // 3. Encrypt all values client-side
       const encryptResult = encryptKeyValues(
         keyResult.value,
-        validKeyValues.map(kv => ({ key: kv.key, value: kv.value })),
+        validKeyValues.map(kv => ({ key: kv.key, value: PlaintextValue(kv.value) })),
         namespace,
         name,
         scope

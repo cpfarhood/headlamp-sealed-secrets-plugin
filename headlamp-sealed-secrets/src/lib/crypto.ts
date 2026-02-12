@@ -12,16 +12,24 @@
  */
 
 import forge from 'node-forge';
-import { Err, Ok, Result, SealedSecretScope } from '../types';
+import {
+  Base64String,
+  Err,
+  Ok,
+  PEMCertificate,
+  PlaintextValue,
+  Result,
+  SealedSecretScope,
+} from '../types';
 
 /**
  * Parse a PEM certificate and extract the RSA public key
  *
- * @param pemCert PEM-encoded certificate string
+ * @param pemCert PEM-encoded certificate string (branded type)
  * @returns Result containing the public key or an error message
  */
 export function parsePublicKeyFromCert(
-  pemCert: string
+  pemCert: PEMCertificate
 ): Result<forge.pki.rsa.PublicKey, string> {
   try {
     const cert = forge.pki.certificateFromPem(pemCert);
@@ -36,7 +44,7 @@ export function parsePublicKeyFromCert(
  * Encrypt a secret value using the kubeseal format
  *
  * @param publicKey RSA public key from the controller's certificate
- * @param value The plaintext secret value to encrypt
+ * @param value The plaintext secret value to encrypt (branded type)
  * @param namespace The namespace (for strict/namespace-wide scoping)
  * @param name The secret name (for strict scoping)
  * @param key The key name within the secret
@@ -45,12 +53,12 @@ export function parsePublicKeyFromCert(
  */
 export function encryptValue(
   publicKey: forge.pki.rsa.PublicKey,
-  value: string,
+  value: PlaintextValue,
   namespace: string,
   name: string,
   key: string,
   scope: SealedSecretScope
-): Result<string, string> {
+): Result<Base64String, string> {
   try {
     // Generate a random 32-byte (256-bit) AES session key
     const sessionKey = forge.random.getBytesSync(32);
@@ -98,7 +106,7 @@ export function encryptValue(
     const payload = lengthBytes + encryptedSessionKey + iv + encryptedValue + tag;
 
     // Base64 encode the final payload
-    return Ok(forge.util.encode64(payload));
+    return Ok(Base64String(forge.util.encode64(payload)));
   } catch (error) {
     return Err(`Encryption failed: ${error}`);
   }
@@ -108,7 +116,7 @@ export function encryptValue(
  * Encrypt multiple key-value pairs for a SealedSecret
  *
  * @param publicKey RSA public key from the controller's certificate
- * @param keyValues Array of {key, value} pairs to encrypt
+ * @param keyValues Array of {key, value} pairs to encrypt (values are branded plaintext)
  * @param namespace The namespace
  * @param name The secret name
  * @param scope The encryption scope
@@ -116,12 +124,12 @@ export function encryptValue(
  */
 export function encryptKeyValues(
   publicKey: forge.pki.rsa.PublicKey,
-  keyValues: Array<{ key: string; value: string }>,
+  keyValues: Array<{ key: string; value: PlaintextValue }>,
   namespace: string,
   name: string,
   scope: SealedSecretScope
-): Result<Record<string, string>, string> {
-  const encryptedData: Record<string, string> = {};
+): Result<Record<string, Base64String>, string> {
+  const encryptedData: Record<string, Base64String> = {};
 
   for (const { key, value } of keyValues) {
     const result = encryptValue(publicKey, value, namespace, name, key, scope);
@@ -139,10 +147,10 @@ export function encryptKeyValues(
 /**
  * Validate a PEM certificate
  *
- * @param pemCert PEM-encoded certificate string
+ * @param pemCert PEM-encoded certificate string (branded type)
  * @returns true if certificate is valid, false otherwise
  */
-export function validateCertificate(pemCert: string): boolean {
+export function validateCertificate(pemCert: PEMCertificate): boolean {
   const result = parsePublicKeyFromCert(pemCert);
   return result.ok;
 }

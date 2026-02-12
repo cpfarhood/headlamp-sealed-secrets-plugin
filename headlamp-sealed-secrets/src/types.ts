@@ -24,6 +24,100 @@ export type Result<T, E = Error> =
 export type AsyncResult<T, E = Error> = Promise<Result<T, E>>;
 
 /**
+ * Branded types for type-level security
+ * These prevent mixing sensitive/non-sensitive values at compile time
+ */
+
+/** Unique symbol for branding plaintext values */
+declare const PlaintextBrand: unique symbol;
+
+/** Unique symbol for branding encrypted values */
+declare const EncryptedBrand: unique symbol;
+
+/** Unique symbol for branding base64-encoded values */
+declare const Base64Brand: unique symbol;
+
+/** Unique symbol for branding PEM certificates */
+declare const PEMCertBrand: unique symbol;
+
+/**
+ * Plaintext sensitive value (not yet encrypted)
+ * Must be explicitly created via PlaintextValue()
+ */
+export type PlaintextValue = string & { readonly [PlaintextBrand]: typeof PlaintextBrand };
+
+/**
+ * Encrypted value (already encrypted)
+ * Created by encryption functions
+ */
+export type EncryptedValue = string & { readonly [EncryptedBrand]: typeof EncryptedBrand };
+
+/**
+ * Base64-encoded string
+ * Created by base64 encoding functions
+ */
+export type Base64String = string & { readonly [Base64Brand]: typeof Base64Brand };
+
+/**
+ * PEM-encoded certificate
+ * Created by certificate parsing functions
+ */
+export type PEMCertificate = string & { readonly [PEMCertBrand]: typeof PEMCertBrand };
+
+/**
+ * Create a branded plaintext value
+ * Use this to mark user input as plaintext before encryption
+ *
+ * @example
+ * const secret = PlaintextValue('my-password');
+ */
+export function PlaintextValue(value: string): PlaintextValue {
+  return value as PlaintextValue;
+}
+
+/**
+ * Create a branded encrypted value
+ * This is typically used by encryption functions
+ *
+ * @example
+ * return Ok(EncryptedValue(encryptedString));
+ */
+export function EncryptedValue(value: string): EncryptedValue {
+  return value as EncryptedValue;
+}
+
+/**
+ * Create a branded base64 string
+ *
+ * @example
+ * return Ok(Base64String(encoded));
+ */
+export function Base64String(value: string): Base64String {
+  return value as Base64String;
+}
+
+/**
+ * Create a branded PEM certificate
+ *
+ * @example
+ * return Ok(PEMCertificate(certPem));
+ */
+export function PEMCertificate(value: string): PEMCertificate {
+  return value as PEMCertificate;
+}
+
+/**
+ * Unwrap a branded type to get the raw string
+ * Use sparingly - only when you need the raw value
+ *
+ * @example
+ * const rawValue = unwrap(plaintextValue);
+ */
+export function unwrap<T extends string>(value: T): string {
+  return value;
+}
+
+/**
  * Helper to create a success result
  *
  * @example
