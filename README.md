@@ -6,7 +6,7 @@
 [![Test Coverage](https://img.shields.io/badge/coverage-92%25-brightgreen)](headlamp-sealed-secrets/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6.2-blue)](https://www.typescriptlang.org/)
 
-A comprehensive [Headlamp](https://headlamp.dev) plugin for managing [Bitnami Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) with **client-side encryption**, **RBAC-aware UI**, and **production-ready features**.
+A comprehensive [Headlamp](https://headlamp.dev) plugin for managing [Bitnami Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) with **client-side encryption** and **RBAC-aware UI**.
 
 > 🔐 **Zero Trust Security**: All encryption happens in your browser. Plaintext secrets never leave your machine.
 
@@ -28,7 +28,7 @@ A comprehensive [Headlamp](https://headlamp.dev) plugin for managing [Bitnami Se
 - **WCAG 2.1 AA Compliant**: Semantic HTML, ARIA labels, keyboard navigation
 - **Screen Reader Support**: Descriptive labels and live regions
 
-### 🎯 Production Ready
+### 🎯 Built for Reliability
 - **Health Monitoring**: Real-time controller status checks
 - **Input Validation**: Kubernetes-compliant name/value validation
 - **Retry Logic**: Exponential backoff with jitter for resilient API calls
