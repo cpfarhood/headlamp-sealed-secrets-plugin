@@ -4,6 +4,7 @@
 
 import { apiFactoryWithNamespace } from '@kinvolk/headlamp-plugin/lib/lib/k8s/apiProxy';
 import { KubeObject } from '@kinvolk/headlamp-plugin/lib/lib/k8s/cluster';
+import { AsyncResult, Err, Ok, tryCatchAsync } from '../types';
 import {
   SealedSecretInterface,
   SealedSecretScope,
@@ -16,6 +17,16 @@ import {
  * Represents a Bitnami Sealed Secret resource in the cluster
  */
 export class SealedSecret extends KubeObject<SealedSecretInterface> {
+  /**
+   * Default API version (fallback)
+   */
+  static readonly DEFAULT_VERSION = 'bitnami.com/v1alpha1';
+
+  /**
+   * Cached detected API version
+   */
+  private static detectedVersion: string | null = null;
+
   /**
    * API endpoint for SealedSecret resources
    * bitnami.com/v1alpha1/sealedsecrets
@@ -89,5 +100,104 @@ export class SealedSecret extends KubeObject<SealedSecretInterface> {
       return 'Unknown';
     }
     return condition.message || condition.reason || condition.status;
+  }
+
+  /**
+   * Detect the API version available in the cluster
+   *
+   * Queries the SealedSecrets CRD to determine which API version is installed
+   * and preferred. Returns the storage version (the version used for persisting
+   * objects in etcd).
+   *
+   * @returns Result containing the API version string (e.g., "bitnami.com/v1alpha1")
+   */
+  static async detectApiVersion(): AsyncResult<string, string> {
+    // Return cached version if available
+    if (this.detectedVersion) {
+      return Ok(this.detectedVersion);
+    }
+
+    const result = await tryCatchAsync(async () => {
+      // Query the CRD to get available versions
+      const response = await fetch(
+        '/apis/apiextensions.k8s.io/v1/customresourcedefinitions/sealedsecrets.bitnami.com'
+      );
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('SealedSecrets CRD not found. Please install Sealed Secrets on the cluster.');
+        }
+        throw new Error(`Failed to fetch CRD: ${response.status} ${response.statusText}`);
+      }
+
+      const crd = await response.json();
+
+      // Find the storage version (the version used for persistence)
+      const storageVersion = crd.spec?.versions?.find((v: any) => v.storage === true);
+
+      if (storageVersion) {
+        const version = `${crd.spec.group}/${storageVersion.name}`;
+        this.detectedVersion = version;
+        return version;
+      }
+
+      // Fallback to first served version if no storage version found
+      const servedVersion = crd.spec?.versions?.find((v: any) => v.served === true);
+      if (servedVersion) {
+        const version = `${crd.spec.group}/${servedVersion.name}`;
+        this.detectedVersion = version;
+        return version;
+      }
+
+      // Ultimate fallback to default
+      return this.DEFAULT_VERSION;
+    });
+
+    if (result.ok === false) {
+      return Err(result.error.message);
+    }
+
+    return Ok(result.value);
+  }
+
+  /**
+   * Get API endpoint with auto-detected version
+   *
+   * Automatically detects and uses the correct API version from the cluster.
+   * Falls back to default version (v1alpha1) if detection fails.
+   *
+   * @returns API endpoint configured with the detected version
+   */
+  static async getApiEndpoint() {
+    const versionResult = await this.detectApiVersion();
+
+    if (versionResult.ok) {
+      const [group, version] = versionResult.value.split('/');
+      return apiFactoryWithNamespace(group, version, 'sealedsecrets');
+    }
+
+    // Fallback to default endpoint
+    return this.apiEndpoint;
+  }
+
+  /**
+   * Get the detected API version
+   *
+   * Returns the cached detected version or null if not yet detected.
+   *
+   * @returns The detected API version string or null
+   */
+  static getDetectedVersion(): string | null {
+    return this.detectedVersion;
+  }
+
+  /**
+   * Clear the cached API version
+   *
+   * Forces re-detection on next call to detectApiVersion().
+   * Useful for refreshing after CRD updates.
+   */
+  static clearVersionCache(): void {
+    this.detectedVersion = null;
   }
 }

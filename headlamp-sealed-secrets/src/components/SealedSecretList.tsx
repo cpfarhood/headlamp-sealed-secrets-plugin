@@ -17,6 +17,7 @@ import { usePermission } from '../hooks/usePermissions';
 import { SealedSecret } from '../lib/SealedSecretCRD';
 import { SealedSecretScope } from '../types';
 import { EncryptDialog } from './EncryptDialog';
+import { VersionWarning } from './VersionWarning';
 
 /**
  * Format scope for display
@@ -75,6 +76,7 @@ export function SealedSecretList() {
       <SectionBox
         title="Sealed Secrets"
       >
+        <VersionWarning autoDetect showDetails={false} />
         <SectionFilterHeader
           title=""
           noNamespaceFilter={false}

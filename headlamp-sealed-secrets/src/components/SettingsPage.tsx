@@ -11,6 +11,7 @@ import React from 'react';
 import { getPluginConfig, savePluginConfig } from '../lib/controller';
 import { PluginConfig } from '../types';
 import { ControllerStatus } from './ControllerStatus';
+import { VersionWarning } from './VersionWarning';
 
 /**
  * Settings page component
@@ -42,6 +43,9 @@ export function SettingsPage() {
           Configure the connection to your Sealed Secrets controller. These settings are stored in
           your browser's local storage.
         </Typography>
+
+        {/* API Version Detection */}
+        <VersionWarning autoDetect showDetails />
 
         {/* Controller Health Status */}
         <Box mb={3} p={2} bgcolor="background.paper" borderRadius={1} border={1} borderColor="divider">
