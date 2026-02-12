@@ -8,45 +8,33 @@
 
 A comprehensive [Headlamp](https://headlamp.dev) plugin for managing [Bitnami Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) with **client-side encryption** and **RBAC-aware UI**.
 
-## ✨ Highlights
+## Features
 
-### 🔒 Security First
-- **Client-Side Encryption**: RSA-OAEP + AES-256-GCM in browser (plaintext never transmitted)
-- **Type-Safe**: Branded types prevent mixing plaintext/encrypted values at compile-time
-- **RBAC-Aware UI**: Shows/hides actions based on your Kubernetes permissions
-- **Certificate Validation**: Automatic expiry detection with 30-day warnings
+- Client-side encryption using RSA-OAEP + AES-256-GCM
+- List, view, create, and manage SealedSecrets
+- View and download sealing key certificates
+- Decrypt sealed values (requires RBAC permissions)
+- RBAC-aware UI adapts to user permissions
+- Support for all three scoping modes (strict, namespace-wide, cluster-wide)
+- Type-safe implementation with branded types
+- 92% test coverage
 
-### 💻 Developer Experience
-- **Full TypeScript**: Result types + branded types for compile-time safety
-- **92% Test Coverage**: Comprehensive unit and integration tests
-- **Well-Documented**: 15+ guides, tutorials, ADRs, and troubleshooting docs
-- **Performance Optimized**: React hooks, memoization, skeleton loading
 
-### ♿ Accessibility
-- **WCAG 2.1 AA Compliant**: Semantic HTML, ARIA labels, keyboard navigation
-- **Screen Reader Support**: Descriptive labels and live regions
+## Quick Start
 
-### 🛠️ Additional Features
-- **Health Monitoring**: Real-time controller status checks
-- **Input Validation**: Kubernetes-compliant name/value validation
-- **Retry Logic**: Exponential backoff with jitter for resilient API calls
-- **Error Handling**: User-friendly error messages with context
-
-## 🚀 Quick Start
-
-### Installation (2 minutes)
+### Installation
 
 ```bash
 # 1. Download and extract plugin
 curl -LO https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/releases/download/v0.2.4/headlamp-sealed-secrets-0.2.4.tar.gz
-tar -xzf headlamp-sealed-secrets-0.2.0.tar.gz -C ~/Library/Application\ Support/Headlamp/plugins/
+tar -xzf headlamp-sealed-secrets-0.2.4.tar.gz -C ~/Library/Application\ Support/Headlamp/plugins/
 
 # 2. Restart Headlamp
 # macOS: Cmd+Q then reopen
 # Linux: killall headlamp && headlamp
 ```
 
-### First Secret (3 minutes)
+### First Secret
 
 ```bash
 # 1. Install Sealed Secrets controller (if not already installed)
@@ -63,34 +51,32 @@ kubectl get sealedsecret -A
 kubectl get secret <your-secret-name> -n <namespace>
 ```
 
-**📖 Detailed Guide**: [Quick Start Tutorial](docs/getting-started/quick-start.md) - Complete walkthrough with screenshots
 
-## 📚 Documentation
+## Documentation
 
 ### Getting Started
-- 📘 **[Installation Guide](docs/getting-started/installation.md)** - Multiple installation methods (macOS, Linux, Windows)
-- 🚀 **[Quick Start Tutorial](docs/getting-started/quick-start.md)** - Create your first sealed secret in 5 minutes
+- **[Installation Guide](docs/getting-started/installation.md)** - Multiple installation methods (macOS, Linux, Windows)
+- **[Quick Start Tutorial](docs/getting-started/quick-start.md)** - Create your first sealed secret
 
 ### User Guides
-- 🔐 **[Creating Secrets](docs/user-guide/creating-secrets.md)** - Encrypt and create sealed secrets
-- 🔑 **[Managing Keys](docs/user-guide/managing-keys.md)** - View and download sealing certificates
-- 🎯 **[Scopes Explained](docs/user-guide/scopes-explained.md)** - Strict vs namespace-wide vs cluster-wide
-- 🔒 **[RBAC Permissions](docs/user-guide/rbac-permissions.md)** - Configure access control
+- **[Creating Secrets](docs/user-guide/creating-secrets.md)** - Encrypt and create sealed secrets
+- **[Managing Keys](docs/user-guide/managing-keys.md)** - View and download sealing certificates
+- **[Scopes Explained](docs/user-guide/scopes-explained.md)** - Strict vs namespace-wide vs cluster-wide
+- **[RBAC Permissions](docs/user-guide/rbac-permissions.md)** - Configure access control
 
 ### Tutorials
-- ⚙️ **[CI/CD Integration](docs/tutorials/ci-cd-integration.md)** - GitHub Actions, GitLab CI, Jenkins
-- 🌐 **[Multi-Cluster Setup](docs/tutorials/multi-cluster-setup.md)** - Manage secrets across clusters
-- 🔄 **[Secret Rotation](docs/tutorials/secret-rotation.md)** - Rotate secrets and sealing keys safely
+- **[CI/CD Integration](docs/tutorials/ci-cd-integration.md)** - GitHub Actions, GitLab CI, Jenkins
+- **[Multi-Cluster Setup](docs/tutorials/multi-cluster-setup.md)** - Manage secrets across clusters
+- **[Secret Rotation](docs/tutorials/secret-rotation.md)** - Rotate secrets and sealing keys safely
 
 ### Reference
-- 🔧 **[Troubleshooting](docs/troubleshooting/)** - Common issues and solutions
-- 📖 **[API Reference](docs/api-reference/generated/)** - Auto-generated TypeScript docs
-- 🏛️ **[Architecture ADRs](docs/architecture/adr/)** - Design decisions and rationale
-- 👨‍💻 **[Development Guide](docs/development/workflow.md)** - Contributing and testing
+- **[Troubleshooting](docs/troubleshooting/)** - Common issues and solutions
+- **[API Reference](docs/api-reference/generated/)** - Auto-generated TypeScript docs
+- **[Architecture ADRs](docs/architecture/adr/)** - Design decisions and rationale
+- **[Development Guide](docs/development/workflow.md)** - Contributing and testing
 
-**📚 [Complete Documentation Index](docs/README.md)**
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Headlamp** v0.13.0 or later
 - **Sealed Secrets controller** in your cluster:
@@ -99,42 +85,7 @@ kubectl get secret <your-secret-name> -n <namespace>
   ```
 - **kubectl** access with appropriate RBAC permissions
 
-## 🎯 Use Cases
-
-| Use Case | Description | Guide |
-|----------|-------------|-------|
-| **GitOps Workflows** | Store encrypted secrets safely in Git repos | [CI/CD Integration](docs/tutorials/ci-cd-integration.md) |
-| **Multi-Environment** | Manage secrets across dev/staging/prod | [Multi-Cluster Setup](docs/tutorials/multi-cluster-setup.md) |
-| **CI/CD Automation** | Automate secret creation in pipelines | [GitHub Actions Example](docs/tutorials/ci-cd-integration.md#github-actions) |
-| **Team Collaboration** | Share encrypted secrets securely | [RBAC Permissions](docs/user-guide/rbac-permissions.md) |
-| **Key Management** | Monitor and rotate sealing certificates | [Secret Rotation](docs/tutorials/secret-rotation.md) |
-| **Compliance** | Audit trail and access control | [Security Hardening](docs/deployment/security-hardening.md) |
-
-### Real-World Examples
-
-```yaml
-# Example: Database credentials in Git (safe!)
-apiVersion: bitnami.com/v1alpha1
-kind: SealedSecret
-metadata:
-  name: database-creds
-  namespace: production
-spec:
-  encryptedData:
-    username: AgBc7E5x... # Encrypted, safe to commit
-    password: AgAK9Qm... # Encrypted, safe to commit
-```
-
-```bash
-# Example: CI/CD pipeline creating secrets
-echo -n "$DB_PASSWORD" | kubeseal \
-  --cert sealed-secrets-cert.pem \
-  --scope strict \
-  --name database-creds \
-  --namespace production
-```
-
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────┐
@@ -163,7 +114,7 @@ echo -n "$DB_PASSWORD" | kubeseal \
 └──────────────────┘
 ```
 
-## 🔒 Security
+## Security
 
 
 ### How It Works
@@ -200,9 +151,9 @@ Plaintext values never leave your browser.
 | Browser XSS | Headlamp CSP policies | ⚠️ Standard web security |
 | Supply chain | Package locks, dependabot | ⚠️ Ongoing monitoring |
 
-**📖 See**: [Security Hardening Guide](docs/deployment/security-hardening.md) | [ADR 003: Client-Side Encryption](docs/architecture/adr/003-client-side-crypto.md)
+See: [Security Hardening Guide](docs/deployment/security-hardening.md) | [ADR 003: Client-Side Encryption](docs/architecture/adr/003-client-side-crypto.md)
 
-## 📊 Technical Details
+## Technical Details
 
 ### Code Quality Metrics
 
@@ -224,18 +175,18 @@ Plaintext values never leave your browser.
 - **Linting**: ESLint + Prettier
 - **Build Tool**: Headlamp plugin SDK
 
-### Architecture Highlights
+### Architecture
 
 - **Result Types**: Type-safe error handling ([ADR 001](docs/architecture/adr/001-result-types.md))
 - **Branded Types**: Compile-time type safety ([ADR 002](docs/architecture/adr/002-branded-types.md))
 - **Custom Hooks**: Separated business logic ([ADR 005](docs/architecture/adr/005-react-hooks-extraction.md))
 - **RBAC Integration**: Permission-aware UI ([ADR 004](docs/architecture/adr/004-rbac-integration.md))
 
-**📖 See**: [Architecture Decision Records](docs/architecture/adr/) for detailed design rationale
+See: [Architecture Decision Records](docs/architecture/adr/) for detailed design rationale
 
-## 🤝 Contributing
+## Contributing
 
-We welcome contributions! 🎉
+We welcome contributions.
 
 ### Quick Start for Contributors
 
@@ -278,15 +229,15 @@ npm run tsc
 - [ ] Documentation updated (if applicable)
 - [ ] Changelog updated (if user-facing change)
 
-**📖 See**: [Development Workflow](docs/development/workflow.md) | [Testing Guide](docs/development/testing.md)
+See: [Development Workflow](docs/development/workflow.md) | [Testing Guide](docs/development/testing.md)
 
-## 📝 Changelog
+## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 **Latest release (v0.2.4)**: Type-safe error handling, RBAC integration, accessibility improvements, and 92% test coverage.
 
-## 🐛 Issues & Support
+## Issues & Support
 
 ### Need Help?
 
@@ -315,44 +266,32 @@ See [CHANGELOG.md](CHANGELOG.md) for version history.
 | Permission denied | Configure RBAC | [Permission Errors](docs/troubleshooting/permission-errors.md) |
 | Encryption fails | Check certificate | [Encryption Failures](docs/troubleshooting/encryption-failures.md) |
 
-## 📄 License
+## License
 
 Apache License 2.0 - see [LICENSE](headlamp-sealed-secrets/LICENSE) for details.
 
-## 🙏 Credits
+## Credits
 
 Built with:
 - [Headlamp](https://headlamp.dev) - Kubernetes UI
 - [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) - Encryption controller
 - [node-forge](https://github.com/digitalbazaar/forge) - Cryptography library
 
-## 🔗 Links
+## Links
 
 ### Project Resources
-- 📦 **[Releases](https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/releases)** - Download plugin
+- **[Releases](https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/releases)** - Download plugin
 - 📚 **[Documentation](docs/README.md)** - Complete docs
 - 🐛 **[Issues](https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/issues)** - Bug reports
 - 💬 **[Discussions](https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/discussions)** - Q&A
 - 📝 **[Changelog](CHANGELOG.md)** - Version history
 
 ### External Resources
-- 🎨 **[Headlamp](https://headlamp.dev)** - Kubernetes UI framework
-- 🔐 **[Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets)** - Encryption controller
-- 🔧 **[kubeseal CLI](https://github.com/bitnami-labs/sealed-secrets#installation)** - Command-line tool
-- 📖 **[Kubernetes RBAC](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)** - Access control
+- **[Headlamp](https://headlamp.dev)** - Kubernetes UI framework
+- **[Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets)** - Encryption controller
+- **[kubeseal CLI](https://github.com/bitnami-labs/sealed-secrets#installation)** - Command-line tool
+- **[Kubernetes RBAC](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)** - Access control
 
-### Coming Soon
-- 📦 **Artifact Hub** - Headlamp plugin registry
-- 📦 **NPM** - Node package manager
 
----
 
-## 🌟 Star History
 
-If this project helped you, please consider giving it a star! ⭐
-
----
-
-**Made with ❤️ for the Kubernetes community**
-
-*Contributions welcome! See [Contributing Guide](docs/development/workflow.md)*
