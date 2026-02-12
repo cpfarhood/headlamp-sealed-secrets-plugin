@@ -48,31 +48,38 @@ export function EncryptDialog({ open, onClose }: EncryptDialogProps) {
 
   const [namespaces] = K8s.ResourceClasses.Namespace.useList();
 
-  const handleAddKeyValue = () => {
-    setKeyValues([...keyValues, { key: '', value: '', showValue: false }]);
-  };
+  // Memoize callbacks to prevent re-renders
+  const handleAddKeyValue = React.useCallback(() => {
+    setKeyValues(prev => [...prev, { key: '', value: '', showValue: false }]);
+  }, []);
 
-  const handleRemoveKeyValue = (index: number) => {
-    setKeyValues(keyValues.filter((_, i) => i !== index));
-  };
+  const handleRemoveKeyValue = React.useCallback((index: number) => {
+    setKeyValues(prev => prev.filter((_, i) => i !== index));
+  }, []);
 
-  const handleKeyChange = (index: number, key: string) => {
-    const updated = [...keyValues];
-    updated[index].key = key;
-    setKeyValues(updated);
-  };
+  const handleKeyChange = React.useCallback((index: number, key: string) => {
+    setKeyValues(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], key };
+      return updated;
+    });
+  }, []);
 
-  const handleValueChange = (index: number, value: string) => {
-    const updated = [...keyValues];
-    updated[index].value = value;
-    setKeyValues(updated);
-  };
+  const handleValueChange = React.useCallback((index: number, value: string) => {
+    setKeyValues(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], value };
+      return updated;
+    });
+  }, []);
 
-  const toggleShowValue = (index: number) => {
-    const updated = [...keyValues];
-    updated[index].showValue = !updated[index].showValue;
-    setKeyValues(updated);
-  };
+  const toggleShowValue = React.useCallback((index: number) => {
+    setKeyValues(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], showValue: !updated[index].showValue };
+      return updated;
+    });
+  }, []);
 
   const handleCreate = async () => {
     // Filter out empty rows

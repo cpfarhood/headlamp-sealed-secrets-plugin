@@ -43,6 +43,73 @@ export function SealedSecretList() {
   const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
   const { allowed: canCreate } = usePermission(undefined, 'canCreate');
 
+  // Memoize callbacks to prevent re-renders
+  const handleOpenDialog = React.useCallback(() => {
+    setCreateDialogOpen(true);
+  }, []);
+
+  const handleCloseDialog = React.useCallback(() => {
+    setCreateDialogOpen(false);
+  }, []);
+
+  // Memoize column definitions (stable reference for table)
+  const columns = React.useMemo(
+    () => [
+      {
+        label: 'Name',
+        getter: (ss: SealedSecret) => (
+          <Link
+            routeName="sealedsecret"
+            params={{
+              namespace: ss.metadata.namespace,
+              name: ss.metadata.name,
+            }}
+          >
+            {ss.metadata.name}
+          </Link>
+        ),
+      },
+      {
+        label: 'Namespace',
+        getter: (ss: SealedSecret) => ss.metadata.namespace,
+      },
+      {
+        label: 'Encrypted Keys',
+        getter: (ss: SealedSecret) => ss.encryptedKeysCount,
+      },
+      {
+        label: 'Scope',
+        getter: (ss: SealedSecret) => formatScope(ss.scope),
+      },
+      {
+        label: 'Sync Status',
+        getter: (ss: SealedSecret) => (
+          <StatusLabel status={ss.isSynced ? 'success' : 'error'}>
+            {ss.isSynced ? 'Synced' : 'Not Synced'}
+          </StatusLabel>
+        ),
+      },
+      {
+        label: 'Age',
+        getter: (ss: SealedSecret) => ss.getAge(),
+      },
+    ],
+    []
+  );
+
+  // Memoize actions array (stable reference)
+  const actions = React.useMemo(
+    () =>
+      canCreate
+        ? [
+            <Button key="create" variant="contained" color="primary" onClick={handleOpenDialog}>
+              Create Sealed Secret
+            </Button>,
+          ]
+        : [],
+    [canCreate, handleOpenDialog]
+  );
+
   // Show error if CRD is not installed
   if (error) {
     return (
@@ -77,73 +144,11 @@ export function SealedSecretList() {
         title="Sealed Secrets"
       >
         <VersionWarning autoDetect showDetails={false} />
-        <SectionFilterHeader
-          title=""
-          noNamespaceFilter={false}
-          actions={
-            canCreate
-              ? [
-                  <Button
-                    key="create"
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setCreateDialogOpen(true)}
-                  >
-                    Create Sealed Secret
-                  </Button>,
-                ]
-              : []
-          }
-        />
-        <SimpleTable
-          data={sealedSecrets}
-          columns={[
-            {
-              label: 'Name',
-              getter: (ss: SealedSecret) => (
-                <Link
-                  routeName="sealedsecret"
-                  params={{
-                    namespace: ss.metadata.namespace,
-                    name: ss.metadata.name,
-                  }}
-                >
-                  {ss.metadata.name}
-                </Link>
-              ),
-            },
-            {
-              label: 'Namespace',
-              getter: (ss: SealedSecret) => ss.metadata.namespace,
-            },
-            {
-              label: 'Encrypted Keys',
-              getter: (ss: SealedSecret) => ss.encryptedKeysCount,
-            },
-            {
-              label: 'Scope',
-              getter: (ss: SealedSecret) => formatScope(ss.scope),
-            },
-            {
-              label: 'Sync Status',
-              getter: (ss: SealedSecret) => (
-                <StatusLabel status={ss.isSynced ? 'success' : 'error'}>
-                  {ss.isSynced ? 'Synced' : 'Not Synced'}
-                </StatusLabel>
-              ),
-            },
-            {
-              label: 'Age',
-              getter: (ss: SealedSecret) => ss.getAge(),
-            },
-          ]}
-        />
+        <SectionFilterHeader title="" noNamespaceFilter={false} actions={actions} />
+        <SimpleTable data={sealedSecrets} columns={columns} />
       </SectionBox>
 
-      <EncryptDialog
-        open={createDialogOpen}
-        onClose={() => setCreateDialogOpen(false)}
-      />
+      <EncryptDialog open={createDialogOpen} onClose={handleCloseDialog} />
     </>
   );
 }

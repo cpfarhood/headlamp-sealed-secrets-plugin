@@ -65,7 +65,8 @@ export function SealedSecretDetail() {
     return <Loader title="Loading SealedSecret..." />;
   }
 
-  const handleDelete = async () => {
+  // Memoize callbacks to prevent re-renders
+  const handleDelete = React.useCallback(async () => {
     try {
       await sealedSecret.delete();
       enqueueSnackbar('SealedSecret deleted successfully', { variant: 'success' });
@@ -74,9 +75,9 @@ export function SealedSecretDetail() {
       enqueueSnackbar(`Failed to delete SealedSecret: ${error.message}`, { variant: 'error' });
     }
     setDeleteDialogOpen(false);
-  };
+  }, [sealedSecret, enqueueSnackbar]);
 
-  const handleRotate = async () => {
+  const handleRotate = React.useCallback(async () => {
     setRotating(true);
     try {
       const config = getPluginConfig();
@@ -89,7 +90,7 @@ export function SealedSecretDetail() {
     } finally {
       setRotating(false);
     }
-  };
+  }, [sealedSecret, enqueueSnackbar]);
 
   const encryptedKeys = Object.keys(sealedSecret.spec.encryptedData || {});
 
