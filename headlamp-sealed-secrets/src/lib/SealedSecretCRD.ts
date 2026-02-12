@@ -2,8 +2,10 @@
  * SealedSecret Custom Resource Definition
  */
 
-import { apiFactoryWithNamespace } from '@kinvolk/headlamp-plugin/lib/lib/k8s/apiProxy';
-import { KubeObject } from '@kinvolk/headlamp-plugin/lib/lib/k8s/cluster';
+import { K8s, ApiProxy } from '@kinvolk/headlamp-plugin/lib';
+
+const { apiFactoryWithNamespace } = ApiProxy;
+const { KubeObject } = K8s.cluster;
 import { AsyncResult, Err, Ok, tryCatchAsync } from '../types';
 import {
   SealedSecretInterface,

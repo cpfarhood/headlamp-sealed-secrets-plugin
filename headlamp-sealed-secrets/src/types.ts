@@ -2,7 +2,9 @@
  * TypeScript interfaces for Bitnami Sealed Secrets plugin
  */
 
-import { KubeObjectInterface } from '@kinvolk/headlamp-plugin/lib/lib/k8s/cluster';
+import { K8s } from '@kinvolk/headlamp-plugin/lib';
+
+type KubeObjectInterface = K8s.cluster.KubeObjectInterface;
 
 /**
  * Result type for operations that can fail
