@@ -71,12 +71,12 @@ install: |
 
   For detailed usage instructions, see the [README](https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/blob/main/headlamp-sealed-secrets/README.md).
 maintainers:
-  - name: cpfarhood
-    email: cpfarhood@users.noreply.github.com
+  - name: privilegedescalation
+    email: privilegedescalation@users.noreply.github.com
 recommendations:
   - url: https://artifacthub.io/packages/helm/sealed-secrets/sealed-secrets
 provider:
-  name: cpfarhood
+  name: privilegedescalation
 changes:
   - kind: fixed
     description: "Replace all Material-UI icons with Iconify equivalents to fix plugin loading (Headlamp provides @iconify/react, not @mui/icons-material)"

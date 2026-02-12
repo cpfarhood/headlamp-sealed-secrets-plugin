@@ -1,8 +1,8 @@
 # Headlamp Sealed Secrets Plugin
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![GitHub release](https://img.shields.io/github/v/release/cpfarhood/headlamp-sealed-secrets-plugin)](https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/releases)
-[![GitHub issues](https://img.shields.io/github/issues/cpfarhood/headlamp-sealed-secrets-plugin)](https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/issues)
+[![GitHub release](https://img.shields.io/github/v/release/privilegedescalation/headlamp-sealed-secrets-plugin)](https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/releases)
+[![GitHub issues](https://img.shields.io/github/issues/privilegedescalation/headlamp-sealed-secrets-plugin)](https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/issues)
 [![Test Coverage](https://img.shields.io/badge/coverage-92%25-brightgreen)](headlamp-sealed-secrets/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6.2-blue)](https://www.typescriptlang.org/)
 
