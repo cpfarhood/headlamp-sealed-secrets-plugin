@@ -88,8 +88,8 @@ jobs:
           echo "Tarball contents:"
           tar -tzf "${TARBALL}" | head -20
 
-          # Verify main.js exists
-          if ! tar -tzf "${TARBALL}" | grep -q "package/main.js"; then
+          # Verify main.js exists (structure is headlamp-sealed-secrets/main.js)
+          if ! tar -tzf "${TARBALL}" | grep -q "headlamp-sealed-secrets/main.js"; then
             echo "::error::main.js not found in tarball"
             exit 1
           fi
