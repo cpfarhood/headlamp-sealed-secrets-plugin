@@ -32,14 +32,24 @@ export function VersionWarning({ autoDetect = true, showDetails = false }: Versi
     setLoading(true);
     setError(null);
 
-    const result = await SealedSecret.detectApiVersion();
+    try {
+      const result = await SealedSecret.detectApiVersion();
 
-    if (result.ok) {
-      setDetectedVersion(result.value);
-      setError(null);
-    } else if (result.ok === false) {
+      if (result.ok) {
+        setDetectedVersion(result.value);
+        setError(null);
+      } else if (result.ok === false) {
+        setDetectedVersion(null);
+        // Ensure error is always a string
+        const errorMessage = typeof result.error === 'string'
+          ? result.error
+          : String(result.error);
+        setError(errorMessage);
+      }
+    } catch (e) {
+      // Catch any unexpected errors
       setDetectedVersion(null);
-      setError(result.error);
+      setError(e instanceof Error ? e.message : String(e));
     }
 
     setLoading(false);
@@ -67,8 +77,8 @@ export function VersionWarning({ autoDetect = true, showDetails = false }: Versi
         }>
           <strong>API Version Detection Failed</strong>
           <br />
-          {error}
-          {error.includes('not found') && (
+          {String(error)}
+          {String(error).includes('not found') && (
             <>
               <br />
               <br />
