@@ -5,6 +5,7 @@
  * encrypted data, template, resulting Secret, and actions
  */
 
+import { Icon } from '@iconify/react';
 import { K8s } from '@kinvolk/headlamp-plugin/lib';
 import { Link } from '@kinvolk/headlamp-plugin/lib/CommonComponents';
 import {
@@ -13,7 +14,18 @@ import {
   SimpleTable,
   StatusLabel,
 } from '@kinvolk/headlamp-plugin/lib/CommonComponents';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Drawer,
+  IconButton,
+  Typography,
+} from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React from 'react';
 import { useParams } from 'react-router-dom';
@@ -46,7 +58,7 @@ function formatScope(scope: SealedSecretScope): string {
  */
 export function SealedSecretDetail() {
   const { namespace, name } = useParams<{ namespace: string; name: string }>();
-  const [sealedSecret] = SealedSecret.useGet(name, namespace);
+  const [sealedSecret, error] = SealedSecret.useGet(name, namespace);
   const [secret] = K8s.ResourceClasses.Secret.useGet(name, namespace);
   const [decryptKey, setDecryptKey] = React.useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
@@ -61,6 +73,22 @@ export function SealedSecretDetail() {
       canDecryptSecrets(namespace).then(setCanDecrypt);
     }
   }, [namespace]);
+
+  // Show error if fetch failed
+  if (error) {
+    return (
+      <Box p={3}>
+        <Alert severity="error">
+          <Typography variant="h6" gutterBottom>
+            Failed to load SealedSecret
+          </Typography>
+          <Typography variant="body2">
+            {String(error)}
+          </Typography>
+        </Alert>
+      </Box>
+    );
+  }
 
   // Show loading skeleton while data is being fetched
   if (!sealedSecret) {
@@ -94,16 +122,41 @@ export function SealedSecretDetail() {
     }
   }, [sealedSecret, enqueueSnackbar]);
 
-  const encryptedKeys = Object.keys(sealedSecret.spec.encryptedData || {});
+  // Safety check - should never happen due to early returns above, but be defensive
+  if (!sealedSecret?.spec?.encryptedData) {
+    return <SealedSecretDetailSkeleton />;
+  }
+
+  const encryptedKeys = Object.keys(sealedSecret.spec.encryptedData);
+
+  const handleClose = () => {
+    window.history.back();
+  };
 
   return (
     <>
-      <Box>
-        <SectionBox
-          title={
-            <Box display="flex" alignItems="center" justifyContent="space-between">
-              <span>{sealedSecret.metadata.name}</span>
-              <Box>
+      <Drawer
+        anchor="right"
+        open
+        onClose={handleClose}
+        PaperProps={{
+          sx: {
+            width: { xs: '100%', sm: '600px', md: '800px' },
+            maxWidth: '100%',
+          },
+        }}
+      >
+        <Box>
+          <SectionBox
+            title={
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box display="flex" alignItems="center" gap={1}>
+                  <IconButton onClick={handleClose} edge="start" size="small">
+                    <Icon icon="mdi:close" />
+                  </IconButton>
+                  <span>{sealedSecret.metadata.name}</span>
+                </Box>
+                <Box>
                 {permissions?.canUpdate && (
                   <Button
                     variant="outlined"
@@ -131,15 +184,15 @@ export function SealedSecretDetail() {
             rows={[
               {
                 name: 'Name',
-                value: sealedSecret.metadata.name,
+                value: String(sealedSecret.metadata.name || ''),
               },
               {
                 name: 'Namespace',
-                value: sealedSecret.metadata.namespace,
+                value: String(sealedSecret.metadata.namespace || ''),
               },
               {
                 name: 'Scope',
-                value: formatScope(sealedSecret.scope),
+                value: String(formatScope(sealedSecret.scope)),
               },
               {
                 name: 'Sync Status',
@@ -151,16 +204,18 @@ export function SealedSecretDetail() {
               },
               {
                 name: 'Status Message',
-                value: sealedSecret.syncMessage,
+                value: String(sealedSecret.syncMessage || 'Unknown'),
                 hide: !sealedSecret.syncCondition,
               },
               {
                 name: 'Age',
-                value: sealedSecret.getAge(),
+                value: String(sealedSecret.getAge() || ''),
               },
               {
                 name: 'Created',
-                value: new Date(sealedSecret.metadata.creationTimestamp!).toLocaleString(),
+                value: sealedSecret.metadata.creationTimestamp
+                  ? new Date(sealedSecret.metadata.creationTimestamp).toLocaleString()
+                  : 'Unknown',
               },
             ]}
           />
@@ -207,16 +262,18 @@ export function SealedSecretDetail() {
               rows={[
                 {
                   name: 'Secret Type',
-                  value: sealedSecret.spec.template.type || 'Opaque',
+                  value: String(sealedSecret.spec.template.type || 'Opaque'),
                 },
                 {
                   name: 'Labels',
-                  value: JSON.stringify(sealedSecret.spec.template.metadata?.labels || {}),
+                  value: String(JSON.stringify(sealedSecret.spec.template.metadata?.labels || {})),
                   hide: !sealedSecret.spec.template.metadata?.labels,
                 },
                 {
                   name: 'Annotations',
-                  value: JSON.stringify(sealedSecret.spec.template.metadata?.annotations || {}),
+                  value: String(
+                    JSON.stringify(sealedSecret.spec.template.metadata?.annotations || {})
+                  ),
                   hide: !sealedSecret.spec.template.metadata?.annotations,
                 },
               ]}
@@ -234,7 +291,7 @@ export function SealedSecretDetail() {
                 },
                 {
                   name: 'Keys',
-                  value: Object.keys(secret.data || {}).join(', '),
+                  value: String(Object.keys(secret.data || {}).join(', ') || 'None'),
                 },
                 {
                   name: 'Link',
@@ -242,8 +299,8 @@ export function SealedSecretDetail() {
                     <Link
                       routeName="secret"
                       params={{
-                        namespace: secret.metadata.namespace,
-                        name: secret.metadata.name,
+                        namespace: String(secret.metadata.namespace || ''),
+                        name: String(secret.metadata.name || ''),
                       }}
                     >
                       View Secret
@@ -259,29 +316,30 @@ export function SealedSecretDetail() {
             </Box>
           )}
         </SectionBox>
-      </Box>
+        </Box>
 
-      {decryptKey && (
-        <DecryptDialog
-          sealedSecret={sealedSecret}
-          secretKey={decryptKey}
-          onClose={() => setDecryptKey(null)}
-        />
-      )}
+        {decryptKey && (
+          <DecryptDialog
+            sealedSecret={sealedSecret}
+            secretKey={decryptKey}
+            onClose={() => setDecryptKey(null)}
+          />
+        )}
 
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Delete SealedSecret?</DialogTitle>
-        <DialogContent>
-          Are you sure you want to delete the SealedSecret <strong>{name}</strong>? This will also
-          delete the resulting Kubernetes Secret.
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDelete} color="error">
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+        <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+          <DialogTitle>Delete SealedSecret?</DialogTitle>
+          <DialogContent>
+            Are you sure you want to delete the SealedSecret <strong>{name}</strong>? This will also
+            delete the resulting Kubernetes Secret.
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleDelete} color="error">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Drawer>
     </>
   );
 }

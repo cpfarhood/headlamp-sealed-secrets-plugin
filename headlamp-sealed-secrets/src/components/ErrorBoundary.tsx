@@ -35,6 +35,10 @@ abstract class BaseErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoun
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
+    console.error('Error type:', typeof error);
+    console.error('Error keys:', Object.keys(error));
+    console.error('Error message:', error.message);
+    console.error('Error toString:', String(error));
     this.setState({ errorInfo });
   }
 
@@ -95,7 +99,14 @@ export class CryptoErrorBoundary extends BaseErrorBoundary {
               variant="body2"
               sx={{ mt: 2, fontFamily: 'monospace', fontSize: '0.875rem' }}
             >
-              Error: {this.state.error.message}
+              {(() => {
+                try {
+                  const msg = this.state.error.message || this.state.error.toString();
+                  return `Error: ${String(msg)}`;
+                } catch (e) {
+                  return 'Error: [Unable to display error message]';
+                }
+              })()}
             </Typography>
           )}
         </Alert>
@@ -143,7 +154,14 @@ export class ApiErrorBoundary extends BaseErrorBoundary {
               variant="body2"
               sx={{ mt: 2, fontFamily: 'monospace', fontSize: '0.875rem' }}
             >
-              Error: {this.state.error.message}
+              {(() => {
+                try {
+                  const msg = this.state.error.message || this.state.error.toString();
+                  return `Error: ${String(msg)}`;
+                } catch (e) {
+                  return 'Error: [Unable to display error message]';
+                }
+              })()}
             </Typography>
           )}
         </Alert>
@@ -182,7 +200,14 @@ export class GenericErrorBoundary extends BaseErrorBoundary {
               variant="body2"
               sx={{ mt: 2, fontFamily: 'monospace', fontSize: '0.875rem' }}
             >
-              Error: {this.state.error.message}
+              {(() => {
+                try {
+                  const msg = this.state.error.message || this.state.error.toString();
+                  return `Error: ${String(msg)}`;
+                } catch (e) {
+                  return 'Error: [Unable to display error message]';
+                }
+              })()}
             </Typography>
           )}
         </Alert>

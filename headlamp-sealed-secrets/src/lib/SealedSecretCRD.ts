@@ -101,7 +101,9 @@ export class SealedSecret extends KubeObject<SealedSecretInterface> {
     if (!condition) {
       return 'Unknown';
     }
-    return condition.message || condition.reason || condition.status;
+    // Ensure we always return a string, not an object
+    const message = condition.message || condition.reason || condition.status;
+    return String(message || 'Unknown');
   }
 
   /**
@@ -120,20 +122,10 @@ export class SealedSecret extends KubeObject<SealedSecretInterface> {
     }
 
     const result = await tryCatchAsync(async () => {
-      // Query the CRD to get available versions
-      const response = await fetch(
+      // Query the CRD to get available versions using Headlamp's API proxy
+      const crd = await ApiProxy.request(
         '/apis/apiextensions.k8s.io/v1/customresourcedefinitions/sealedsecrets.bitnami.com'
       );
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error('SealedSecrets CRD not found. Please install Sealed Secrets on the cluster.');
-        }
-        const errorText = await response.text().catch(() => response.statusText);
-        throw new Error(`Failed to fetch CRD (${response.status} ${response.statusText}): ${errorText}`);
-      }
-
-      const crd = await response.json();
 
       // Find the storage version (the version used for persistence)
       const storageVersion = crd.spec?.versions?.find((v: any) => v.storage === true);

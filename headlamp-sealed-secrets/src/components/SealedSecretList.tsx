@@ -13,11 +13,13 @@ import {
 } from '@kinvolk/headlamp-plugin/lib/CommonComponents';
 import { Box, Button } from '@mui/material';
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import { usePermission } from '../hooks/usePermissions';
 import { SealedSecret } from '../lib/SealedSecretCRD';
 import { SealedSecretScope } from '../types';
 import { EncryptDialog } from './EncryptDialog';
 import { SealedSecretListSkeleton } from './LoadingSkeletons';
+import { SealedSecretDetail } from './SealedSecretDetail';
 import { VersionWarning } from './VersionWarning';
 
 /**
@@ -40,6 +42,7 @@ function formatScope(scope: SealedSecretScope): string {
  * SealedSecrets list view component
  */
 export function SealedSecretList() {
+  const { namespace, name } = useParams<{ namespace?: string; name?: string }>();
   const [sealedSecrets, error, loading] = SealedSecret.useList();
   const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
   const { allowed: canCreate } = usePermission(undefined, 'canCreate');
@@ -159,6 +162,8 @@ export function SealedSecretList() {
       </SectionBox>
 
       <EncryptDialog open={createDialogOpen} onClose={handleCloseDialog} />
+
+      {namespace && name && <SealedSecretDetail />}
     </>
   );
 }

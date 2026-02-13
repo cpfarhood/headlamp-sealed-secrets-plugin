@@ -16,12 +16,12 @@
 
 import {
   registerDetailsViewSection,
+  registerPluginSettings,
   registerRoute,
   registerSidebarEntry,
 } from '@kinvolk/headlamp-plugin/lib';
 import React from 'react';
 import { ApiErrorBoundary, GenericErrorBoundary } from './components/ErrorBoundary';
-import { SealedSecretDetail } from './components/SealedSecretDetail';
 import { SealedSecretList } from './components/SealedSecretList';
 import { SealingKeysView } from './components/SealingKeysView';
 import { SecretDetailsSection } from './components/SecretDetailsSection';
@@ -56,37 +56,17 @@ registerSidebarEntry({
   url: '/sealedsecrets/keys',
 });
 
-// "Settings" child entry
-registerSidebarEntry({
-  parent: 'sealed-secrets',
-  name: 'sealed-secrets-settings',
-  label: 'Settings',
-  url: '/sealedsecrets/settings',
-});
-
 /**
  * Register routes
  */
 
-// List view
+// List view with optional detail drawer
 registerRoute({
-  path: '/sealedsecrets',
+  path: '/sealedsecrets/:namespace?/:name?',
   sidebar: 'sealed-secrets-list',
   component: () => (
     <ApiErrorBoundary>
       <SealedSecretList />
-    </ApiErrorBoundary>
-  ),
-  exact: true,
-});
-
-// Detail view
-registerRoute({
-  path: '/sealedsecrets/:namespace/:name',
-  sidebar: 'sealed-secrets-list',
-  component: () => (
-    <ApiErrorBoundary>
-      <SealedSecretDetail />
     </ApiErrorBoundary>
   ),
   exact: true,
@@ -101,18 +81,6 @@ registerRoute({
     <ApiErrorBoundary>
       <SealingKeysView />
     </ApiErrorBoundary>
-  ),
-  exact: true,
-});
-
-// Settings page
-registerRoute({
-  path: '/sealedsecrets/settings',
-  sidebar: 'sealed-secrets-settings',
-  component: () => (
-    <GenericErrorBoundary>
-      <SettingsPage />
-    </GenericErrorBoundary>
   ),
   exact: true,
 });
@@ -132,3 +100,18 @@ registerDetailsViewSection(({ resource }) => {
   }
   return null;
 });
+
+/**
+ * Register plugin settings
+ *
+ * Settings will appear in Settings → Plugins → Sealed Secrets
+ */
+registerPluginSettings(
+  'headlamp-sealed-secrets',
+  () => (
+    <GenericErrorBoundary>
+      <SettingsPage />
+    </GenericErrorBoundary>
+  ),
+  true // Display save button
+);
