@@ -28,7 +28,7 @@ jobs:
         id: package_name
         working-directory: ./headlamp-sealed-secrets
         run: |
-          PKG_NAME=$(node -p "require('./package.json').name")
+          PKG_NAME=$(jq -r '.name' package.json)
           echo "name=${PKG_NAME}" >> $GITHUB_OUTPUT
           echo "Package name: ${PKG_NAME}"
 
