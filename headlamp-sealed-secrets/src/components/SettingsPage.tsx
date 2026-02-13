@@ -4,7 +4,6 @@
  * Configuration page for the Sealed Secrets plugin
  */
 
-import { SectionBox } from '@kinvolk/headlamp-plugin/lib/CommonComponents';
 import { Box, Button, Divider, TextField, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React from 'react';
@@ -35,10 +34,7 @@ export function SettingsPage() {
   };
 
   return (
-    <SectionBox
-      title="Sealed Secrets Plugin Settings"
-    >
-      <Box p={3}>
+    <Box p={3}>
         <Typography variant="body1" paragraph id="settings-description">
           Configure the connection to your Sealed Secrets controller. These settings are stored in
           your browser's local storage.
@@ -156,6 +152,5 @@ export function SettingsPage() {
           </Typography>
         </Box>
       </Box>
-    </SectionBox>
   );
 }

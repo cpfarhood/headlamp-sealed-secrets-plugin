@@ -74,6 +74,11 @@ export function SealedSecretDetail() {
     }
   }, [namespace]);
 
+  // Wait for required params before rendering
+  if (!namespace || !name) {
+    return <SealedSecretDetailSkeleton />;
+  }
+
   // Show error if fetch failed
   if (error) {
     return (
@@ -146,7 +151,7 @@ export function SealedSecretDetail() {
           },
         }}
       >
-        <Box>
+        <Box sx={{ height: '100%', overflow: 'auto' }}>
           <SectionBox
             title={
               <Box display="flex" alignItems="center" justifyContent="space-between">
