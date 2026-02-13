@@ -104,14 +104,6 @@ registerDetailsViewSection(({ resource }) => {
 /**
  * Register plugin settings
  *
- * Settings will appear in Settings → Plugins → Sealed Secrets
+ * Settings will appear in Settings → Plugins → sealed-secrets
  */
-registerPluginSettings(
-  'Sealed Secrets',
-  () => (
-    <GenericErrorBoundary>
-      <SettingsPage />
-    </GenericErrorBoundary>
-  ),
-  true // Display save button
-);
+registerPluginSettings('sealed-secrets', SettingsPage, true);

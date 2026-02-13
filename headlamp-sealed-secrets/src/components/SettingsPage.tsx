@@ -13,15 +13,27 @@ import { PluginConfig } from '../types';
 import { ControllerStatus } from './ControllerStatus';
 import { VersionWarning } from './VersionWarning';
 
+interface PluginSettingsProps {
+  data?: { [key: string]: string | number | boolean };
+  onDataChange?: (data: { [key: string]: string | number | boolean }) => void;
+}
+
 /**
  * Settings page component
  */
-export function SettingsPage() {
-  const [config, setConfig] = React.useState<PluginConfig>(getPluginConfig());
+export function SettingsPage(props: PluginSettingsProps) {
+  const { data, onDataChange } = props;
+  const storedConfig = getPluginConfig();
+  const [config, setConfig] = React.useState<PluginConfig>({
+    controllerName: (data?.controllerName as string) ?? storedConfig.controllerName,
+    controllerNamespace: (data?.controllerNamespace as string) ?? storedConfig.controllerNamespace,
+    controllerPort: (data?.controllerPort as number) ?? storedConfig.controllerPort,
+  });
   const { enqueueSnackbar } = useSnackbar();
 
   const handleSave = () => {
     savePluginConfig(config);
+    onDataChange?.(config as unknown as { [key: string]: string | number | boolean });
     enqueueSnackbar('Settings saved successfully', { variant: 'success' });
   };
 
@@ -73,7 +85,11 @@ export function SettingsPage() {
             fullWidth
             label="Controller Name"
             value={config.controllerName}
-            onChange={e => setConfig({ ...config, controllerName: e.target.value })}
+            onChange={e => {
+              const newConfig = { ...config, controllerName: e.target.value };
+              setConfig(newConfig);
+              onDataChange?.(newConfig as unknown as { [key: string]: string | number | boolean });
+            }}
             margin="normal"
             helperText="Name of the sealed-secrets-controller deployment/service"
             inputProps={{
@@ -89,7 +105,11 @@ export function SettingsPage() {
             fullWidth
             label="Controller Namespace"
             value={config.controllerNamespace}
-            onChange={e => setConfig({ ...config, controllerNamespace: e.target.value })}
+            onChange={e => {
+              const newConfig = { ...config, controllerNamespace: e.target.value };
+              setConfig(newConfig);
+              onDataChange?.(newConfig as unknown as { [key: string]: string | number | boolean });
+            }}
             margin="normal"
             helperText="Namespace where the controller is installed"
             inputProps={{
@@ -106,7 +126,11 @@ export function SettingsPage() {
             label="Controller Port"
             type="number"
             value={config.controllerPort}
-            onChange={e => setConfig({ ...config, controllerPort: parseInt(e.target.value, 10) })}
+            onChange={e => {
+              const newConfig = { ...config, controllerPort: parseInt(e.target.value, 10) };
+              setConfig(newConfig);
+              onDataChange?.(newConfig as unknown as { [key: string]: string | number | boolean });
+            }}
             margin="normal"
             helperText="HTTP port of the controller service"
             inputProps={{
