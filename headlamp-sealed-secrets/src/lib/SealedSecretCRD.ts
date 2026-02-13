@@ -129,7 +129,8 @@ export class SealedSecret extends KubeObject<SealedSecretInterface> {
         if (response.status === 404) {
           throw new Error('SealedSecrets CRD not found. Please install Sealed Secrets on the cluster.');
         }
-        throw new Error(`Failed to fetch CRD: ${response.status} ${response.statusText}`);
+        const errorText = await response.text().catch(() => response.statusText);
+        throw new Error(`Failed to fetch CRD (${response.status} ${response.statusText}): ${errorText}`);
       }
 
       const crd = await response.json();
