@@ -107,7 +107,7 @@ registerDetailsViewSection(({ resource }) => {
  * Settings will appear in Settings → Plugins → Sealed Secrets
  */
 registerPluginSettings(
-  'headlamp-sealed-secrets',
+  'Sealed Secrets',
   () => (
     <GenericErrorBoundary>
       <SettingsPage />
