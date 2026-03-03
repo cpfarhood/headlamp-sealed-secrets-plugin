@@ -41,7 +41,7 @@ if ! command -v npm &> /dev/null; then
 fi
 
 # Navigate to plugin directory
-cd "$(dirname "$0")/headlamp-sealed-secrets"
+cd "$(dirname "$0")"
 
 echo -e "${GREEN}Step 1: Installing dependencies...${NC}"
 npm install

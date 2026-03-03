@@ -1,5 +1,6 @@
 # Headlamp Sealed Secrets Plugin
 
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/package/headlamp/sealed-secrets/sealed-secrets)](https://artifacthub.io/packages/headlamp/sealed-secrets/sealed-secrets)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub release](https://img.shields.io/github/v/release/privilegedescalation/headlamp-sealed-secrets-plugin)](https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/releases)
 [![GitHub issues](https://img.shields.io/github/issues/privilegedescalation/headlamp-sealed-secrets-plugin)](https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/issues)
@@ -24,6 +25,12 @@ A comprehensive [Headlamp](https://headlamp.dev) plugin for managing [Bitnami Se
 
 ### Installation
 
+#### Option 1: Headlamp Plugin Manager (Recommended)
+
+Browse the Headlamp Plugin Manager (Settings → Plugins → Catalog) and install **sealed-secrets** directly.
+
+#### Option 2: Manual Tarball Install
+
 ```bash
 # 1. Download and extract plugin
 curl -LO https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin/releases/download/v0.2.4/headlamp-sealed-secrets-0.2.4.tar.gz
@@ -32,6 +39,16 @@ tar -xzf headlamp-sealed-secrets-0.2.4.tar.gz -C ~/Library/Application\ Support/
 # 2. Restart Headlamp
 # macOS: Cmd+Q then reopen
 # Linux: killall headlamp && headlamp
+```
+
+#### Option 3: Build from Source
+
+```bash
+git clone https://github.com/privilegedescalation/headlamp-sealed-secrets-plugin.git
+cd headlamp-sealed-secrets-plugin/headlamp-sealed-secrets
+npm install
+npm run build
+npx @kinvolk/headlamp-plugin extract . /headlamp/plugins
 ```
 
 ### First Secret
@@ -86,6 +103,19 @@ kubectl get secret <your-secret-name> -n <namespace>
 - **kubectl** access with appropriate RBAC permissions
 
 ## Architecture
+
+```
+src/
+├── index.tsx              # Plugin entry point
+├── types.ts               # Branded types, Result type, interfaces
+├── hooks/                 # Custom React hooks (controller health, RBAC, encryption)
+├── lib/                   # Utility library (CRD, crypto, controller, RBAC, retry, validators)
+└── components/            # React components (list, detail, dialogs, settings)
+```
+
+The plugin uses custom hooks and a utility library instead of a single data context provider. Client-side encryption is handled entirely in the browser via `node-forge` (RSA-OAEP + AES-256-GCM).
+
+### System Diagram
 
 ```
 ┌─────────────┐

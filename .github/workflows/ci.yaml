@@ -20,32 +20,26 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: headlamp-sealed-secrets/package-lock.json
 
       - name: Install dependencies
-        working-directory: ./headlamp-sealed-secrets
         run: npm ci
 
       - name: Type-check
-        working-directory: ./headlamp-sealed-secrets
         run: npm run tsc
 
       - name: Lint
-        working-directory: ./headlamp-sealed-secrets
         run: npm run lint
 
       - name: Build plugin
-        working-directory: ./headlamp-sealed-secrets
         run: npx @kinvolk/headlamp-plugin build
 
       - name: Verify build artifacts
-        working-directory: ./headlamp-sealed-secrets
         run: |
           if [ ! -d "dist" ] || [ -z "$(ls -A dist)" ]; then
             echo "::error::dist directory is empty or missing"
             exit 1
           fi
-          echo "✓ Build artifacts verified"
+          echo "Build artifacts verified"
           ls -lh dist/
 
       - name: Upload build artifact (for inspection)
@@ -53,5 +47,5 @@ jobs:
         if: always()
         with:
           name: plugin-dist
-          path: headlamp-sealed-secrets/dist/
+          path: dist/
           retention-days: 7
