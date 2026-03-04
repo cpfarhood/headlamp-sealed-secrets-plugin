@@ -69,9 +69,15 @@ export function SealedSecretDetail() {
 
   // Check if user can decrypt secrets (requires get permission on Secrets)
   React.useEffect(() => {
+    let cancelled = false;
     if (namespace) {
-      canDecryptSecrets(namespace).then(setCanDecrypt);
+      canDecryptSecrets(namespace).then((result) => {
+        if (!cancelled) setCanDecrypt(result);
+      });
     }
+    return () => {
+      cancelled = true;
+    };
   }, [namespace]);
 
   // Wait for required params before rendering
@@ -154,7 +160,7 @@ export function SealedSecretDetail() {
             title={
               <Box display="flex" alignItems="center" justifyContent="space-between">
                 <Box display="flex" alignItems="center" gap={1}>
-                  <IconButton onClick={handleClose} edge="start" size="small">
+                  <IconButton onClick={handleClose} edge="start" size="small" aria-label="Close detail panel">
                     <Icon icon="mdi:close" />
                   </IconButton>
                   <span>{sealedSecret.metadata.name}</span>
@@ -233,24 +239,24 @@ export function SealedSecretDetail() {
               columns={[
                 {
                   label: 'Key',
-                  getter: (row: any) => row.key,
+                  getter: (row: { key: string; value: string }) => row.key,
                 },
                 {
                   label: 'Encrypted Value',
-                  getter: (row: any) => {
+                  getter: (row: { key: string; value: string }) => {
                     const val = row.value;
                     return val.length > 40 ? val.substring(0, 40) + '...' : val;
                   },
                 },
                 {
                   label: 'Actions',
-                  getter: (row: any) =>
+                  getter: (row: { key: string; value: string }) =>
                     canDecrypt ? (
-                      <Button size="small" onClick={() => setDecryptKey(row.key)}>
+                      <Button size="small" onClick={() => setDecryptKey(row.key)} aria-label={`Decrypt ${row.key}`}>
                         Decrypt
                       </Button>
                     ) : (
-                      <Button size="small" disabled title="No permission to access Secrets">
+                      <Button size="small" disabled title="No permission to access Secrets" aria-label={`Decrypt ${row.key} (no permission)`}>
                         Decrypt
                       </Button>
                     ),
@@ -331,8 +337,8 @@ export function SealedSecretDetail() {
           />
         )}
 
-        <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-          <DialogTitle>Delete SealedSecret?</DialogTitle>
+        <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} aria-labelledby="delete-dialog-title">
+          <DialogTitle id="delete-dialog-title">Delete SealedSecret?</DialogTitle>
           <DialogContent>
             Are you sure you want to delete the SealedSecret <strong>{name}</strong>? This will also
             delete the resulting Kubernetes Secret.
