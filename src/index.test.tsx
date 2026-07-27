@@ -101,6 +101,22 @@ describe('Plugin Entry Point', () => {
     );
   });
 
+  it('should register /sealedsecrets/keys before the parameterized list route', () => {
+    // React Router Switch renders the first match. The parameterized route
+    // /sealedsecrets/:namespace?/:name? would swallow "keys" as a namespace
+    // value if registered first, preventing SealingKeysView from rendering.
+    const calls = mockRegisterRoute.mock.calls;
+    const keysIndex = calls.findIndex(
+      ([arg]: [{ path: string }]) => arg.path === '/sealedsecrets/keys'
+    );
+    const listIndex = calls.findIndex(
+      ([arg]: [{ path: string }]) => arg.path === '/sealedsecrets/:namespace?/:name?'
+    );
+    expect(keysIndex).toBeGreaterThanOrEqual(0);
+    expect(listIndex).toBeGreaterThanOrEqual(0);
+    expect(keysIndex).toBeLessThan(listIndex);
+  });
+
   it('should register details view section for Secret resources', () => {
     expect(mockRegisterDetailsViewSection).toHaveBeenCalledTimes(1);
     expect(mockRegisterDetailsViewSection).toHaveBeenCalledWith(expect.any(Function));
