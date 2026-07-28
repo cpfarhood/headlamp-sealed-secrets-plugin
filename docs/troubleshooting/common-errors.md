@@ -512,7 +512,7 @@ curl http://localhost:8080/v1/cert.pem
 
 **Full Error** (Browser Console):
 ```
-Access to fetch at 'https://kubernetes.default.svc' from origin 'http://localhost:3000' has been blocked by CORS policy
+Access to fetch at 'https://<kube-apiserver-service>' from origin 'http://localhost:3000' has been blocked by CORS policy
 ```
 
 **Cause**: Browser security blocking cross-origin requests
