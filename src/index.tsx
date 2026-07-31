@@ -58,7 +58,24 @@ registerSidebarEntry({
 
 /**
  * Register routes
+ *
+ * Order matters: the exact /sealedsecrets/keys route must be registered before
+ * the parameterized /sealedsecrets/:namespace?/:name? route. React Router's
+ * Switch renders the first match, and the optional-param route would otherwise
+ * swallow "keys" as a namespace value, preventing SealingKeysView from rendering.
  */
+
+// Sealing keys view — must be registered before the parameterized list route
+registerRoute({
+  path: '/sealedsecrets/keys',
+  sidebar: 'sealing-keys',
+  component: () => (
+    <ApiErrorBoundary>
+      <SealingKeysView />
+    </ApiErrorBoundary>
+  ),
+  exact: true,
+});
 
 // List view with optional detail drawer
 registerRoute({
@@ -71,18 +88,6 @@ registerRoute({
   ),
   exact: true,
   name: 'sealedsecret',
-});
-
-// Sealing keys view
-registerRoute({
-  path: '/sealedsecrets/keys',
-  sidebar: 'sealing-keys',
-  component: () => (
-    <ApiErrorBoundary>
-      <SealingKeysView />
-    </ApiErrorBoundary>
-  ),
-  exact: true,
 });
 
 /**
